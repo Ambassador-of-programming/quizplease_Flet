@@ -1,0 +1,22 @@
+[project]
+name = "myapp"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Flet developer", email = "you@example.com" }
+]
+dependencies = [
+  "flet",
+  "aiofiles",
+]
+
+[tool.flet]
+org = "com.mycompany"
+product = "MyApp"
+company = "My Company"
+copyright = "Copyright (C) 2025 by My Company"
+
+[tool.flet.app]
+path = "src"
