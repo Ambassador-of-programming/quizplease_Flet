@@ -3,37 +3,35 @@ import asyncio
 from api.client import api_client
 
 
-async def registration_page(page: ft.Page):
+async def app_registration_page(page: ft.Page):
     """
-    Registration page for game sign up with all form fields
+    Application registration page - sign up for the app
     """
+    
     def on_back_click(e):
         """Handle back button click"""
-        page.go("/menu")
+        page.go("/login")
     
     async def on_register_click(e):
         """Handle registration button click"""
         # Validate form
-        if not team_name.value: 
-            show_error("Введите название команды")
+        if not username.value: 
+            show_error("Введите имя пользователя")
             return
-        if not captain_name.value:
-            show_error("Введите имя капитана")
+        if not full_name.value:
+            show_error("Введите полное имя")
             return
         if not email.value:
             show_error("Введите email")
             return
-        if not phone.value:
-            show_error("Введите телефон")
+        if not password.value:
+            show_error("Введите пароль")
             return
-        if not team_size.value:
-            show_error("Выберите количество человек")
+        if len(password.value) < 6:
+            show_error("Пароль должен быть не менее 6 символов")
             return
-        if not feedback.value:
-            show_error("Расскажите как вы узнали о нас")
-            return
-        if not checkbox1.value or not checkbox2.value:
-            show_error("Согласитесь с условиями")
+        if password.value != password_confirm.value:
+            show_error("Пароли не совпадают")
             return
         
         # Show loading
@@ -41,35 +39,32 @@ async def registration_page(page: ft.Page):
         page.update()
         
         try:
-            # Подготавливаем данные команды
-            team_data = {
-                "name": team_name.value,
-                "description": feedback.value,  # Empty description if not provided
-                "captain_name": captain_name.value,
-                "captain_email": email.value,
-                "captain_phone": phone.value,
-                "team_size": int(team_size.value),
-                "source": feedback.value,
-                "first_time": checkbox1.value,
-                "pay_at_event": checkbox2.value,
+            # Подготавливаем данные пользователя
+            user_data = {
+                "username": username.value,
+                "email": email.value,
+                "full_name": full_name.value,
+                "password": password.value,
             }
-            print("Team data:", team_data)
             
-            print(page.session.get('selected_event_id'))
-            result = await api_client.signup_event(int(page.session.get('selected_event_id')), team_data)
-            
+            # Регистрируем пользователя через API
+            result = await api_client.register(
+                username=user_data["username"],
+                email=user_data["email"],
+                password=user_data["password"]
+            )
             
             if "error" in result:
                 show_error(f"Ошибка: {result['error']}")
             else:
-                snackbar.content.value = f"✓ Команда '{team_name.value}' успешно зарегистрирована!"
+                snackbar.content.value = f"✓ Добро пожаловать, {user_data['username']}! Теперь войдите в аккаунт"
                 snackbar.bgcolor = "#43A047"
                 snackbar.open = True
                 page.update()
                 
-                # Переходим на меню после 2 секунд
+                # Переходим на страницу логина после 2 секунд
                 await asyncio.sleep(2)
-                page.go("/menu")
+                page.go("/login")
         except Exception as ex:
             show_error(f"Ошибка подключения: {str(ex)}")
         finally:
@@ -78,22 +73,22 @@ async def registration_page(page: ft.Page):
     
     def show_error(message: str):
         """Show error message"""
-        snackbar.content. value = f"✗ {message}"
+        snackbar.content.value = f"✗ {message}"
         snackbar.bgcolor = "#E53935"
         snackbar.open = True
-        page. update()
+        page.update()
     
     # Snackbar for notifications
-    snackbar = ft. SnackBar(
+    snackbar = ft.SnackBar(
         content=ft.Text("", size=14, color="#FFFFFF"),
         bgcolor="#43A047",
         duration=2000,
     )
-    page.overlay. append(snackbar)
+    page.overlay.append(snackbar)
     
     # Form fields
-    team_name = ft. TextField(
-        hint_text="Введите название",
+    username = ft.TextField(
+        hint_text="Введите имя пользователя",
         border_color="#D9D9D9",
         filled=True,
         fill_color="#FFFFFF",
@@ -102,8 +97,8 @@ async def registration_page(page: ft.Page):
         text_size=14,
     )
     
-    captain_name = ft.TextField(
-        hint_text="Введите имя",
+    full_name = ft.TextField(
+        hint_text="Введите полное имя",
         border_color="#D9D9D9",
         filled=True,
         fill_color="#FFFFFF",
@@ -113,27 +108,7 @@ async def registration_page(page: ft.Page):
     )
     
     email = ft.TextField(
-        hint_text="Введите почту",
-        border_color="#D9D9D9",
-        filled=True,
-        fill_color="#FFFFFF",
-        border_radius=8,
-        height=40,
-        text_size=14,
-    )
-    
-    phone = ft.TextField(
-        hint_text="+7",
-        border_color="#D9D9D9",
-        filled=True,
-        fill_color="#FFFFFF",
-        border_radius=8,
-        height=40,
-        text_size=14,
-    )
-    
-    login = ft.TextField(
-        hint_text="Введите логин",
+        hint_text="Введите email",
         border_color="#D9D9D9",
         filled=True,
         fill_color="#FFFFFF",
@@ -153,52 +128,21 @@ async def registration_page(page: ft.Page):
         password=True,
     )
     
-    # Team size dropdown
-    team_size = ft.Dropdown(
-        hint_text="Value",
+    password_confirm = ft.TextField(
+        hint_text="Повторите пароль",
         border_color="#D9D9D9",
         filled=True,
         fill_color="#FFFFFF",
         border_radius=8,
-        options=[
-            ft.dropdown. Option("3"),
-            ft.dropdown.Option("4"),
-            ft.dropdown. Option("5"),
-            ft.dropdown.Option("6"),
-            ft.dropdown.Option("7"),
-            ft.dropdown.Option("8"),
-        ],
-    )
-    
-    # Feedback textarea
-    feedback = ft.TextField(
-        hint_text="Расскажите",
-        border_color="#D9D9D9",
-        filled=True,
-        fill_color="#FFFFFF",
-        border_radius=8,
-        min_lines=3,
-        max_lines=5,
-        multiline=True,
-    )
-    
-    # Checkboxes
-    checkbox1 = ft.Checkbox(
-        label="Мы играем в первый раз",
-        value=True,
-        label_position=ft.LabelPosition.RIGHT,
-    )
-    
-    checkbox2 = ft.Checkbox(
-        label="Оплатить на игре",
-        value=True,
-        label_position=ft.LabelPosition.RIGHT,
+        height=40,
+        text_size=14,
+        password=True,
     )
     
     # Register button
     register_button = ft.Container(
         content=ft.Text(
-            "Записаться",
+            "Зарегистрироваться",
             size=16,
             weight="w600",
             color="#FFFFFF",
@@ -207,19 +151,34 @@ async def registration_page(page: ft.Page):
         bgcolor="#E60189",
         border_radius=8,
         padding=ft.padding.symmetric(vertical=14, horizontal=30),
-        alignment=ft.alignment.center,
+        alignment=ft.alignment.Alignment.CENTER,
         on_click=on_register_click,
         ink=True,
-        width=200,
+        width=250,
     )
     
     # Footer text
     footer_text = ft.Text(
-        "Нажимая кнопку 'Записаться' вы согласиваетесь с политикой обработки персональных данных",
+        "Уже есть аккаунт?",
         size=12,
         weight="w400",
         color="#999999",
-        text_align=ft.TextAlign. CENTER,
+        text_align=ft.TextAlign.CENTER,
+    )
+    
+    login_link = ft.TextButton(
+        "Войти",
+        style=ft.ButtonStyle(
+            color="#2C2C2C",
+            overlay_color=ft.Colors.TRANSPARENT,
+        ),
+        on_click=on_back_click,
+    )
+    
+    footer_row = ft.Row(
+        controls=[footer_text, login_link],
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=4,
     )
     
     # Header
@@ -233,12 +192,12 @@ async def registration_page(page: ft.Page):
                     on_click=on_back_click,
                 ),
                 ft.Text(
-                    "Записаться на игру",
+                    "Регистрация",
                     size=20,
                     weight="w600",
                     color="#000000",
                     expand=True,
-                    text_align=ft.TextAlign. CENTER,
+                    text_align=ft.TextAlign.CENTER,
                 ),
                 ft.Container(width=40),
             ],
@@ -248,26 +207,26 @@ async def registration_page(page: ft.Page):
     )
     
     # Form container
-    form_content = ft. Column(
+    form_content = ft.Column(
         controls=[
-            # Team name
+            # Username
             ft.Text(
-                "Название команды*",
+                "Имя пользователя*",
                 size=14,
                 weight="w500",
                 color="#1E1E1E",
             ),
-            team_name,
-            ft. Divider(height=16, color="transparent"),
+            username,
+            ft.Divider(height=16, color="transparent"),
             
-            # Captain name
+            # Full name
             ft.Text(
-                "Имя капитана*",
+                "Полное имя*",
                 size=14,
                 weight="w500",
                 color="#1E1E1E",
             ),
-            captain_name,
+            full_name,
             ft.Divider(height=16, color="transparent"),
             
             # Email
@@ -278,43 +237,27 @@ async def registration_page(page: ft.Page):
                 color="#1E1E1E",
             ),
             email,
-            ft. Divider(height=16, color="transparent"),
-            
-            # Phone
-            ft.Text(
-                "Телефон капитана*",
-                size=14,
-                weight="w500",
-                color="#1E1E1E",
-            ),
-            phone,
             ft.Divider(height=16, color="transparent"),
             
-            # Team size
+            # Password
             ft.Text(
-                "Количество человек в команде*",
+                "Пароль*",
                 size=14,
                 weight="w500",
                 color="#1E1E1E",
             ),
-            team_size,
+            password,
             ft.Divider(height=16, color="transparent"),
             
-            # Feedback
-            ft. Text(
-                "Откуда вы о нас узнали?  *",
+            # Password confirm
+            ft.Text(
+                "Повторить пароль*",
                 size=14,
                 weight="w500",
                 color="#1E1E1E",
             ),
-            feedback,
-            ft.Divider(height=24, color="transparent"),
-            
-            # Checkboxes
-            checkbox1,
-            ft.Divider(height=12, color="transparent"),
-            checkbox2,
-            ft. Divider(height=32, color="transparent"),
+            password_confirm,
+            ft.Divider(height=32, color="transparent"),
             
             # Register button
             ft.Container(
@@ -324,7 +267,7 @@ async def registration_page(page: ft.Page):
             ft.Divider(height=16, color="transparent"),
             
             # Footer text
-            footer_text,
+            footer_row,
         ],
         spacing=0,
     )
@@ -337,14 +280,14 @@ async def registration_page(page: ft.Page):
     )
     
     # Main content with scroll
-    main_content = ft. Column(
+    main_content = ft.Column(
         controls=[
             header,
             ft.Container(
                 content=scroll_form,
                 expand=True,
                 padding=ft.padding.symmetric(horizontal=20, vertical=16),
-                clip_behavior=ft. ClipBehavior.HARD_EDGE,
+                clip_behavior=ft.ClipBehavior.HARD_EDGE,
             ),
         ],
         expand=True,
@@ -352,10 +295,10 @@ async def registration_page(page: ft.Page):
     )
     
     # Main container with gradient background
-    main_container = ft. Container(
+    main_container = ft.Container(
         content=main_content,
-        width=page. window. width,
-        height=page. window.height,
+        width=page.window.width,
+        height=page.window.height,
         gradient=ft.LinearGradient(
             begin=ft.alignment.Alignment.TOP_LEFT,
             end=ft.alignment.Alignment.BOTTOM_RIGHT,

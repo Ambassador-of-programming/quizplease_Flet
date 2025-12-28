@@ -1,29 +1,68 @@
 import flet as ft
+import asyncio
+from api.client import api_client
 
 
 async def login_page(page: ft.Page):
     """
-    Login page with gradient background and КВИЗО БОЙНЯ logo
+    Login page with gradient background and API integration
     """
     
-    def on_login_click(e):
-        """Handle login button click"""
-        email = email_field.value
+    loading_indicator = ft.ProgressRing(visible=False)
+    
+    async def on_login_click(e):
+        """Handle login button click with API call"""
+        username = email_field.value
         password = password_field.value
         
-        if not email or not password:
+        if not username or not password:
             error_snackbar.content.value = "Пожалуйста, заполните все поля"
             error_snackbar.open = True
             page.update()
             return
         
-        success_snackbar.content.value = f"Попытка входа: {email}"
-        success_snackbar.open = True
+        # Show loading
+        loading_indicator.visible = True
+        login_button.enabled = False
         page.update()
+        
+        try:
+            # Call API
+            result = await api_client.login(username, password)
+            
+            if "error" in result:
+                error_snackbar.content.value = f"Ошибка: {result['error']}"
+                error_snackbar.open = True
+            elif "access_token" in result:
+                page.session.set("access_token", result['access_token'])
+                success_snackbar.content.value = f"Добро пожаловать, {result.get('user', {}).get('username', username)}!"
+                success_snackbar.open = True
+                # Navigate to menu after 1 second
+                await asyncio.sleep(1)
+                
+                page.go("/menu")
+            else:
+                error_snackbar.content.value = "Неудачный вход. Проверьте учетные данные"
+                error_snackbar.open = True
+        except Exception as ex:
+            error_snackbar.content.value = f"Ошибка подключения: {str(ex)}"
+            error_snackbar.open = True
+        finally:
+            loading_indicator.visible = False
+            login_button.enabled = True
+            page.update()
+    
+    def on_register_click(e):
+        """Navigate to app registration page"""
+        page.go("/app_registration")
+    
+    def on_team_registration_click(e):
+        """Navigate to team registration page"""
+        page.go("/team_registration")
     
     def on_forgot_password_click(e):
         """Handle forgot password link click"""
-        info_snackbar.content.value = "Переход к сбросу пароля"
+        info_snackbar.content.value = "Функция восстановления пароля в разработке"
         info_snackbar.open = True
         page.update()
     
@@ -88,17 +127,24 @@ async def login_page(page: ft.Page):
     
     # Login button
     login_button = ft.Container(
-        content=ft.Text(
-            "Вход",
-            size=16,
-            weight="w400",
-            color="#FFFFFF",
-            text_align=ft.TextAlign.CENTER,
+        content=ft.Row(
+            controls=[
+                ft.Text(
+                    "Вход",
+                    size=16,
+                    weight="w400",
+                    color="#FFFFFF",
+                    text_align=ft.TextAlign.CENTER,
+                ),
+                loading_indicator,
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            spacing=10,
         ),
         bgcolor="#2C2C2C",
         border_radius=8,
         padding=ft.padding.symmetric(vertical=12, horizontal=12),
-        alignment=ft.alignment.center,
+        alignment=ft.alignment.Alignment.CENTER,
         on_click=on_login_click,
         ink=True,
     )
@@ -125,7 +171,7 @@ async def login_page(page: ft.Page):
                                 src="src/photo/login.png",
                                 width=190,
                                 height=127,
-                                fit=ft.ImageFit.CONTAIN,
+                                fit='CONTAIN',
                             ),
                         ],
                         spacing=5,
@@ -148,6 +194,26 @@ async def login_page(page: ft.Page):
         margin=ft.margin.only(bottom=40),
     )
     
+    # Registration link
+    ft.TextButton(
+        "Записаться на игру",
+        style=ft.ButtonStyle(
+            color="#2C2C2C",
+            overlay_color=ft.Colors.TRANSPARENT,
+        ),
+        on_click=on_team_registration_click,
+    )
+    
+    # App Registration link
+    app_registration_link = ft.TextButton(
+        "Зарегистрироваться",
+        style=ft.ButtonStyle(
+            color="#2C2C2C",
+            overlay_color=ft.Colors.TRANSPARENT,
+        ),
+        on_click=on_register_click,
+    )
+    
     # Form container
     form_container = ft.Container(
         content=ft.Column(
@@ -156,6 +222,8 @@ async def login_page(page: ft.Page):
                 password_container,
                 login_button,
                 forgot_password_link,
+                app_registration_link,
+                # registration_link,
             ],
             spacing=24,
             tight=True,
@@ -208,8 +276,8 @@ async def login_page(page: ft.Page):
         width=page.window.width,
         height=page.window.height,
         gradient=ft.LinearGradient(
-            begin=ft.alignment.top_left,
-            end=ft.alignment.bottom_right,
+            begin=ft.alignment.Alignment.TOP_LEFT,
+            end=ft.alignment.Alignment.BOTTOM_RIGHT,
             colors=[
                 "#5B4FFF",  # Blue-purple
                 "#8B5FFF",  # Purple
@@ -219,7 +287,7 @@ async def login_page(page: ft.Page):
             ],
             stops=[0.0, 0.25, 0.5, 0.75, 1.0],
         ),
-        alignment=ft.alignment.center,
+        alignment=ft.alignment.Alignment.CENTER,
     )
     
     return main_container

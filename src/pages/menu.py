@@ -2,30 +2,28 @@ import flet as ft
 from typing import Callable
 
 
-async def menu_page(page: ft.Page, on_navigate: Callable[[str], None] = None):
+async def menu_page(page: ft.Page):
     """
     Main menu page with gradient background and КВИЗО БОЙНЯ options
     """
     
     def on_schedule_click(e):
         """Handle schedule button click"""
-        if on_navigate:
-            on_navigate("schedule")
+        page.go("/schedule")
     
     def on_warmup_click(e):
         """Handle warm-up button click"""
-        if on_navigate:
-            on_navigate("warmup")
+        page.go("/warmup")
     
     def on_play_click(e):
         """Handle play button click"""
-        if on_navigate:
-            on_navigate("play")
+        page.go("/play")
+        
     
     def on_rating_click(e):
         """Handle team rating button click"""
-        if on_navigate:
-            on_navigate("rating")
+        page.go("/rating")
+        
     
     # Logo container
     logo_container = ft. Container(

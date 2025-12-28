@@ -5,19 +5,41 @@ from pages.schedule import schedule_page
 from pages.razminка import razminка_page
 from pages.rating import rating_page
 from pages.registration import registration_page
+from pages.app_registration import app_registration_page
 
 class Router:
-    async def init(self, page: ft.Page):
-        self.routes = {
-            '/login': await login_page(page),
-            '/menu': await menu_page(page),
-            '/schedule': await schedule_page(page, on_back=lambda: page.go('/menu')),
-            '/razminka': await razminка_page(page, on_back=lambda: page.go('/menu')),
-            '/rating': await rating_page(page, on_back=lambda: page.go('/menu')),
-            '/registration': await registration_page(page, on_back=lambda: page.go('/menu')),
-        }
-        self.body = ft.Container(expand=True)
-
+    def __init__(self, page: ft.Page):
+            self.page = page
+            self.routes = {
+                '/login':  login_page,
+                '/menu':  menu_page,
+                '/schedule':  schedule_page,
+                '/warmup':  razminка_page,
+                '/rating':  rating_page,
+                '/app_registration':  app_registration_page,
+                '/team_registration':  registration_page,
+                }
+            self.current_route = None
+            
     async def route_change(self, route):
-        self.body.content = self.routes[route.route]
-        self.body.update()
+        await self.remove_current_route()
+
+        route_name = route.route
+        if route_name in self.routes:
+            if self.routes[route_name]:
+                new_page = await self.routes[route_name](self.page)
+                self.current_route = new_page
+                self.page.add(new_page)
+            else:
+                self.page.go("/menu")
+        else:
+            self.page.go("/menu")
+
+
+    async def remove_current_route(self):
+        if self.current_route:
+            # Вызываем метод очистки, если он существует
+            if hasattr(self.current_route, 'cleanup') and callable(self.current_route.cleanup):
+                await self.current_route.cleanup()
+            self.page.remove(self.current_route)
+            self.current_route = None

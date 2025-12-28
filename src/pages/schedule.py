@@ -1,46 +1,88 @@
 import flet as ft
-from typing import Callable, List, Dict
+from typing import  List, Dict
+import asyncio
+from api.client import api_client
+
+# Global variable to store selected event_id for registration
+selected_event_id = None
 
 
-async def schedule_page(page: ft.Page, on_back: Callable = None):
+async def schedule_page(page: ft.Page):
     """
     Schedule page displaying a list of quiz events
     """
     
-    # Sample event data
-    events: List[Dict] = [
-        {
-            "title": "Название игры",
-            "time": "19:00 - 21:00",
-            "location": "ул. Пушкина, 10",
-            "cost": "500 ₽"
-        },
-        {
-            "title": "Название игры",
-            "time": "19:00 - 21:00",
-            "location": "ул. Пушкина, 10",
-            "cost": "500 ₽"
-        },
-        {
-            "title": "Название игры",
-            "time": "19:00 - 21:00",
-            "location": "ул. Пушкина, 10",
-            "cost": "500 ₽"
-        },
-    ]
+    # Events data
+    events: List[Dict] = []
+    
+    async def load_events():
+        """Загружает список событий с API"""
+        nonlocal events
+        try:
+            print("[DEBUG] Calling api_client.get_schedule()...")
+            result = await api_client.get_schedule(limit=100)
+            print(f"[DEBUG] API Response type: {type(result)}")
+            print(f"[DEBUG] API Response: {result}")
+            
+            if isinstance(result, list):
+                events = result
+                print(f"[DEBUG] Events loaded as list: {len(events)} items")
+            elif isinstance(result, dict):
+                if "error" in result:
+                    print(f"[DEBUG] API returned error: {result['error']}")
+                    events = []
+                else:
+                    # Could be wrapped response
+                    if "events" in result:
+                        events = result["events"]
+                    else:
+                        events = []
+                    print(f"[DEBUG] Events from dict: {len(events)} items")
+            else:
+                print(f"[DEBUG] Unexpected response type: {type(result)}")
+                events = []
+            
+            print(f"[DEBUG] Final events count: {len(events)}")
+            return events
+        except Exception as e:
+            print(f"[ERROR] Error loading events: {e}")
+            import traceback
+            traceback.print_exc()
+            return []
     
     def on_signup_click(event_index: int):
         """Handle sign up button click"""
         def handler(e):
-            snackbar.content.value = f"Записались на {events[event_index]['title']}"
-            snackbar.open = True
-            page.update()
+            async def signup_task():
+                global selected_event_id
+                try:
+                    # Сохраняем ID события в глобальную переменную
+                    if event_index < len(events):
+                        event_data = events[event_index]
+                        selected_event_id = event_data.get('id')
+
+                        page.update()
+                        
+                        # Переходим на страницу регистрации команды
+                        await asyncio.sleep(1)
+                        print(f"[DEBUG] Navigating to team registration for event_id={selected_event_id}")
+                        page.session.set("selected_event_id", selected_event_id)
+                        page.go("/team_registration")
+                except Exception as ex:
+                    
+                    page.update()
+            
+            page.run_task(signup_task)
         return handler
     
     def on_back_click(e):
         """Handle back button click"""
-        if on_back:
-            on_back()
+        page.go("/menu")
+
+    async def update_events_view():
+        while True:
+            page.run_task(update_events_view)
+            await asyncio.sleep(60) 
     
     # Header with back button
     header = ft.Container(
@@ -60,7 +102,7 @@ async def schedule_page(page: ft.Page, on_back: Callable = None):
                     expand=True,
                 ),
             ],
-            alignment=ft.MainAxisAlignment.START,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         ),
         padding=ft.padding.symmetric(horizontal=16, vertical=12),
     )
@@ -69,12 +111,28 @@ async def schedule_page(page: ft.Page, on_back: Callable = None):
     def create_event_card(event: Dict, index: int) -> ft.Container:
         """Create a styled event card"""
         
+        # Parse and format time
+        try:
+            from datetime import datetime
+            start_time = event.get("start_time", "")
+            if start_time:
+                # Parse ISO format: '2025-12-24T07:23:26.231000'
+                dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                time_str = dt.strftime("%d.%m.%Y %H:%M")
+            else:
+                time_str = "N/A"
+        except Exception as e:
+            time_str = event.get("start_time", "N/A")
+        
+        # Format cost
+        cost_str = f"{event.get('cost', 0)} ₽" if event.get('cost') else "Бесплатно"
+        
         # Info item with icon
         def create_info_item(icon: str, label: str, value: str) -> ft.Row:
             return ft.Row(
                 controls=[
                     ft.Container(
-                        content=ft. Icon(
+                        content=ft.Icon(
                             name=icon,
                             size=20,
                             color="#E60189",
@@ -110,12 +168,12 @@ async def schedule_page(page: ft.Page, on_back: Callable = None):
                 controls=[
                     # Title
                     ft.Container(
-                        content=ft. Text(
+                        content=ft.Text(
                             event["title"],
                             size=28,
                             weight="w800",
                             color="#000000",
-                            text_align=ft.TextAlign. CENTER,
+                            text_align=ft.TextAlign.CENTER,
                         ),
                         padding=ft.padding.symmetric(vertical=12),
                     ),
@@ -130,17 +188,17 @@ async def schedule_page(page: ft.Page, on_back: Callable = None):
                                 create_info_item(
                                     ft.Icons.LOCATION_ON,
                                     "Место",
-                                    event["location"]
+                                    event.get("location", "N/A")
                                 ),
                                 create_info_item(
                                     ft.Icons.SCHEDULE,
                                     "Время",
-                                    event["time"]
+                                    time_str
                                 ),
                                 create_info_item(
                                     ft.Icons.STAR,
                                     "Стоимость",
-                                    event["cost"]
+                                    cost_str
                                 ),
                             ],
                             spacing=16,
@@ -191,24 +249,77 @@ async def schedule_page(page: ft.Page, on_back: Callable = None):
             padding=0,
         )
     
-    # Snackbar for notifications
-    snackbar = ft. SnackBar(
-        content=ft.Text("", size=14, color="#FFFFFF"),
-        bgcolor="#43A047",
-        duration=2000,
-    )
-    page.overlay. append(snackbar)
-    
-    # Event cards list
-    event_cards = [create_event_card(event, i) for i, event in enumerate(events)]
-    
-    # Scrollable content
+    # Create columns for event cards - will be updated after loading
     scroll_content = ft.Column(
-        controls=event_cards,
+        controls=[],
         spacing=16,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
     
+    # Function to update the view with loaded events
+    async def update_events_view():
+        """Load events from API and update the view"""
+        try:
+            print("[DEBUG] Starting update_events_view...")
+            # Check if user is logged in (has token)
+            if not api_client.token:
+                print("[DEBUG] User not logged in, skipping event loading")
+                scroll_content.controls.clear()
+                scroll_content.controls.append(
+                    ft.Container(
+                        content=ft.Text(
+                            "Пожалуйста, залогиньтесь сначала",
+                            size=18,
+                            weight="w600",
+                            color="#FFFFFF",
+                            text_align=ft.TextAlign.CENTER,
+                        ),
+                        padding=ft.padding.symmetric(vertical=40),
+                    )
+                )
+                page.update()
+                return
+            
+            await load_events()
+            print(f"[DEBUG] After load_events, events count: {len(events)}")
+            
+            # Clear existing controls
+            scroll_content.controls.clear()
+            
+            if events:
+                print(f"[DEBUG] Found {len(events)} events, creating cards...")
+                # Create cards for each event
+                for i, event in enumerate(events):
+                    print(f"[DEBUG] Creating card for event {i}: {event.get('title', 'Unknown')}")
+                    scroll_content.controls.append(create_event_card(event, i))
+            else:
+                print("[DEBUG] No events found, showing empty message...")
+                # Show message if no events
+                scroll_content.controls.append(
+                    ft.Container(
+                        content=ft.Text(
+                            "Нет предстоящих событий",
+                            size=18,
+                            weight="w600",
+                            color="#FFFFFF",
+                            text_align=ft.TextAlign.CENTER,
+                        ),
+                        padding=ft.padding.symmetric(vertical=40),
+                    )
+                )
+
+            page.update()
+        except Exception as e:
+            print(f"[ERROR] Error updating events view: {e}")
+            # snackbar.content.value = f"Ошибка загрузки: {str(e)}"
+            # snackbar.bgcolor = "#E53935"
+            # snackbar.open = True
+            page.update()
+    
+    asyncio.create_task(update_events_view())
+    # Don't load events automatically - wait for user to refresh or navigate to page
+    # Events will be loaded when user presses refresh button
+
     # Main content with scroll
     main_content = ft.Column(
         controls=[

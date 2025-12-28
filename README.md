@@ -79,3 +79,45 @@ flet build windows -v
 ```
 
 For more details on building Windows package, refer to the [Windows Packaging Guide](https://flet.dev/docs/publish/windows/).
+
+```
+quizplease_Flet
+├─ Pipfile
+├─ pyproject.toml
+├─ README.md
+├─ scrin
+│  ├─ логин страница.png
+│  ├─ меню страница.png
+│  ├─ разминка страница.png
+│  ├─ расписание страница.png
+│  ├─ регистрация страница.png
+│  └─ рейтинг команд страница.png
+└─ src
+   ├─ api
+   │  ├─ client.py
+   │  └─ __init__.py
+   ├─ assets
+   │  ├─ icon.png
+   │  └─ splash_android.png
+   ├─ main.py
+   ├─ pages
+   │  ├─ app_registration.py
+   │  ├─ login.py
+   │  ├─ menu.py
+   │  ├─ rating.py
+   │  ├─ razminка.py
+   │  ├─ registration.py
+   │  ├─ schedule.py
+   │  └─ __init__.py
+   ├─ photo
+   │  ├─ Clip path group (1).png
+   │  ├─ Clip path group (2).png
+   │  ├─ Clip path group.png
+   │  ├─ login.png
+   │  └─ __init__.py
+   └─ router
+      ├─ bar.py
+      ├─ FletRouter.py
+      └─ __init__.py
+
+```
