@@ -78,21 +78,21 @@ async def registration_page(page: ft.Page):
     
     def show_error(message: str):
         """Show error message"""
-        snackbar.content. value = f"✗ {message}"
+        snackbar.content.value = f"✗ {message}"
         snackbar.bgcolor = "#E53935"
         snackbar.open = True
-        page. update()
+        page.update()
     
     # Snackbar for notifications
-    snackbar = ft. SnackBar(
+    snackbar = ft.SnackBar(
         content=ft.Text("", size=14, color="#FFFFFF"),
         bgcolor="#43A047",
         duration=2000,
     )
-    page.overlay. append(snackbar)
+    page.overlay.append(snackbar)
     
     # Form fields
-    team_name = ft. TextField(
+    team_name = ft.TextField(
         hint_text="Введите название",
         border_color="#D9D9D9",
         filled=True,
@@ -219,7 +219,7 @@ async def registration_page(page: ft.Page):
         size=12,
         weight="w400",
         color="#999999",
-        text_align=ft.TextAlign. CENTER,
+        text_align=ft.TextAlign.CENTER,
     )
     
     # Header
@@ -238,7 +238,7 @@ async def registration_page(page: ft.Page):
                     weight="w600",
                     color="#000000",
                     expand=True,
-                    text_align=ft.TextAlign. CENTER,
+                    text_align=ft.TextAlign.CENTER,
                 ),
                 ft.Container(width=40),
             ],
@@ -248,7 +248,7 @@ async def registration_page(page: ft.Page):
     )
     
     # Form container
-    form_content = ft. Column(
+    form_content = ft.Column(
         controls=[
             # Team name
             ft.Text(
@@ -258,7 +258,7 @@ async def registration_page(page: ft.Page):
                 color="#1E1E1E",
             ),
             team_name,
-            ft. Divider(height=16, color="transparent"),
+            ft.Divider(height=16, color="transparent"),
             
             # Captain name
             ft.Text(
@@ -278,7 +278,7 @@ async def registration_page(page: ft.Page):
                 color="#1E1E1E",
             ),
             email,
-            ft. Divider(height=16, color="transparent"),
+            ft.Divider(height=16, color="transparent"),
             
             # Phone
             ft.Text(
@@ -314,12 +314,12 @@ async def registration_page(page: ft.Page):
             checkbox1,
             ft.Divider(height=12, color="transparent"),
             checkbox2,
-            ft. Divider(height=32, color="transparent"),
+            ft.Divider(height=32, color="transparent"),
             
             # Register button
             ft.Container(
                 content=register_button,
-                alignment=ft.alignment.Alignment.CENTER,
+                alignment=ft.alignment.center,
             ),
             ft.Divider(height=16, color="transparent"),
             
@@ -337,28 +337,30 @@ async def registration_page(page: ft.Page):
     )
     
     # Main content with scroll
-    main_content = ft. Column(
+    main_content = ft.Column(
         controls=[
             header,
             ft.Container(
                 content=scroll_form,
                 expand=True,
                 padding=ft.padding.symmetric(horizontal=20, vertical=16),
-                clip_behavior=ft. ClipBehavior.HARD_EDGE,
+                clip_behavior=ft.ClipBehavior.HARD_EDGE,
             ),
         ],
         expand=True,
         spacing=0,
     )
     
+    page.scroll = ft.ScrollMode.HIDDEN
+
     # Main container with gradient background
-    main_container = ft. Container(
+    main_container = ft.Container(
         content=main_content,
-        width=page. window. width,
-        height=page. window.height,
+        width=page.window.width,
+        height=page.window.height,
         gradient=ft.LinearGradient(
-            begin=ft.alignment.Alignment.TOP_LEFT,
-            end=ft.alignment.Alignment.BOTTOM_RIGHT,
+            begin=ft.alignment.top_left,
+            end=ft.alignment.bottom_right,
             colors=[
                 "#E8D5F2",  # Light purple
                 "#F5D5E8",  # Light pink
@@ -366,7 +368,13 @@ async def registration_page(page: ft.Page):
             ],
             stops=[0.0, 0.5, 1.0],
         ),
-        alignment=ft.alignment.Alignment.CENTER,
+        alignment=ft.alignment.center,
+        padding=ft.padding.only(
+            top=35,  # отступ от челки
+            bottom=20,  # отступ от кнопок навигации
+            left=10,
+            right=10
+        ),
     )
     
     return main_container

@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any
 
 
 # Configuração do API
-API_BASE_URL = "http://127.0.0.1:8000/api"
+API_BASE_URL = "http://167.86.104.152:8000/api"
 TIMEOUT = 10.0
 
 class APIClient:

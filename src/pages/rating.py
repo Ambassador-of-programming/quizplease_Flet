@@ -144,6 +144,12 @@ async def rating_page(page: ft.Page):
             stops=[0.0, 0.25, 0.5, 0.75, 1.0],
         ),
         alignment=ft.alignment.center,
+        padding=ft.padding.only(
+            top=35,  # отступ от челки
+            bottom=20,  # отступ от кнопок навигации
+            left=10,
+            right=10
+        ),
     )
     
     # Load teams on page init
@@ -172,5 +178,6 @@ async def rating_page(page: ft.Page):
     
     # Start loading teams
     page.run_task(init_page)
+    page.scroll = ft.ScrollMode.HIDDEN
     
     return main_container

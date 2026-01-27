@@ -211,8 +211,8 @@ async def schedule_page(page: ft.Page):
                     
                     # Sign up button
                     ft.Container(
-                        content=ft. Container(
-                            content=ft. Text(
+                        content=ft.Container(
+                            content=ft.Text(
                                 "Записаться",
                                 size=16,
                                 weight="w500",
@@ -317,6 +317,7 @@ async def schedule_page(page: ft.Page):
             page.update()
     
     asyncio.create_task(update_events_view())
+    page.scroll = ft.ScrollMode.HIDDEN
     # Don't load events automatically - wait for user to refresh or navigate to page
     # Events will be loaded when user presses refresh button
 
@@ -336,12 +337,12 @@ async def schedule_page(page: ft.Page):
     )
     
     # Main container with gradient background
-    main_container = ft. Container(
+    main_container = ft.Container(
         content=main_content,
-        width=page.window. width,
-        height=page. window.height,
+        width=page.window.width,
+        height=page.window.height,
         gradient=ft.LinearGradient(
-            begin=ft.alignment. top_left,
+            begin=ft.alignment.top_left,
             end=ft.alignment.bottom_right,
             colors=[
                 "#5B4FFF",  # Blue-purple
@@ -353,6 +354,12 @@ async def schedule_page(page: ft.Page):
             stops=[0.0, 0.25, 0.5, 0.75, 1.0],
         ),
         alignment=ft.alignment.center,
+        padding=ft.padding.only(
+            top=35,  # отступ от челки
+            bottom=20,  # отступ от кнопок навигации
+            left=10,
+            right=10
+        ),
     )
     
     return main_container

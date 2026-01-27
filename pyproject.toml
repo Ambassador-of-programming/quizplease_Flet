@@ -1,27 +1,23 @@
 [project]
-name = "quizplease"
+name = "Quizoboynya"
 version = "0.1.0"
 description = ""
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Flet developer", email = "you@example.com" }
+    { name = "Quizoboynya developer", email = "you@example.com" }
 ]
+
 dependencies = [
-  "flet>=0.80.0",
+  "flet==0.28.3",
   "aiofiles"
 ]
 
-[dependency-groups]
-dev = [
-  "flet[all]>=0.80.0",
-]
-
 [tool.flet]
-org = "com.mycompany"
-product = "quizplease-fastapi"
-company = "Flet"
-copyright = "Copyright (C) 2026 by Flet"
+org = "com.quizoboynya"
+product = "quizoboynya"
+company = "Quizoboynya"
+copyright = "Copyright (C) 2026 Quizoboynya"
 
 [tool.flet.app]
 path = "src"

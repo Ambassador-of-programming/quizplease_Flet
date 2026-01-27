@@ -16,8 +16,6 @@ async def razminка_page(page: ft.Page):
     answered_correctly = [0]  # Count of correct answers
     loading = [True]
 
-
-    
     async def load_quizzes():
         """Загружает разминки с API"""
         try:
@@ -46,10 +44,10 @@ async def razminка_page(page: ft.Page):
                     
                     if is_correct:
                         answered_correctly[0] += 1
-                        snackbar.content.value = f"✓ Правильно!"
+                        snackbar.content.value = "✓ Правильно!"
                         snackbar.bgcolor = "#43A047"
                     else:
-                        snackbar.content.value = f"✗ Неправильно!"
+                        snackbar.content.value = "✗ Неправильно!"
                         snackbar.bgcolor = "#E53935"
                     
                     snackbar.open = True
@@ -301,6 +299,12 @@ async def razminка_page(page: ft.Page):
             stops=[0.0, 0.25, 0.5, 0.75, 1.0],
         ),
         alignment=ft.alignment.center,
+        padding=ft.padding.only(
+            top=35,  # отступ от челки
+            bottom=20,  # отступ от кнопок навигации
+            left=10,
+            right=10
+        ),
     )
     
     # Load quizzes on page init
@@ -321,5 +325,6 @@ async def razminка_page(page: ft.Page):
     
     # Start loading quizzes
     page.run_task(init_page)
+    page.scroll = ft.ScrollMode.HIDDEN
     
     return main_container

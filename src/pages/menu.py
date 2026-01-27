@@ -26,24 +26,24 @@ async def menu_page(page: ft.Page):
         
     
     # Logo container
-    logo_container = ft. Container(
+    logo_container = ft.Container(
         content=ft.Column(
             controls=[
                 ft.Container(
-                    content=ft. Column(
+                    content=ft.Column(
                         controls=[
                             ft.Image(
-                                src="src/photo/login.png",
+                                src="images/login.png",
                                 width=190,
                                 height=127,
-                                fit=ft. ImageFit.CONTAIN,
+                                fit=ft.ImageFit.CONTAIN,
                             ),
                         ],
                         spacing=5,
                         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     ),
                     bgcolor="#1C75BC",
-                    padding=ft. padding.all(20),
+                    padding=ft.padding.all(20),
                     border_radius=12,
                     shadow=ft.BoxShadow(
                         spread_radius=0,
@@ -51,7 +51,7 @@ async def menu_page(page: ft.Page):
                         color=ft.Colors.with_opacity(0.4, "#000000"),
                         offset=ft.Offset(0, 6),
                     ),
-                    rotate=ft. Rotate(-0.05),
+                    rotate=ft.Rotate(-0.05),
                 )
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -67,9 +67,9 @@ async def menu_page(page: ft.Page):
                 controls=[
                     # Background image
                     ft.Container(
-                        content=ft. Image(
+                        content=ft.Image(
                             src=image_path,
-                            fit=ft.ImageFit. COVER,
+                            fit=ft.ImageFit.COVER,
                             width=280,
                             height=140,
                         ),
@@ -85,12 +85,12 @@ async def menu_page(page: ft.Page):
                     ),
                     # Button with gradient
                     ft.Container(
-                        content=ft. Text(
+                        content=ft.Text(
                             title,
                             size=18,
                             weight="w600",
                             color="#FFFFFF",
-                            text_align=ft.TextAlign. CENTER,
+                            text_align=ft.TextAlign.CENTER,
                         ),
                         gradient=ft.LinearGradient(
                             begin=ft.alignment.center_left,
@@ -98,7 +98,7 @@ async def menu_page(page: ft.Page):
                             colors=[gradient_color1, gradient_color2],
                         ),
                         border_radius=8,
-                        padding=ft. padding.symmetric(horizontal=20, vertical=12),
+                        padding=ft.padding.symmetric(horizontal=20, vertical=12),
                         alignment=ft.alignment.center,
                         on_click=on_click,
                         ink=True,
@@ -125,7 +125,7 @@ async def menu_page(page: ft.Page):
     # Menu cards
     schedule_card = create_menu_card(
         "Расписание",
-        "src/photo/Clip path group.png",
+        "images/menu3.png",
         on_schedule_click,
         "#1B75BB",
         "#2B2A80"
@@ -133,7 +133,7 @@ async def menu_page(page: ft.Page):
     
     warmup_card = create_menu_card(
         "Разминка",
-        "src/photo/Clip path group (1).png",
+        "images/menu1.png",
         on_warmup_click,
         "#1B75BB",
         "#2B2A80"
@@ -141,7 +141,7 @@ async def menu_page(page: ft.Page):
     
     play_card = create_menu_card(
         "Играть",
-        "src/photo/Clip path group (2).png",
+        "images/menu2.png",
         on_play_click,
         "#1B75BB",
         "#2B2A80"
@@ -215,7 +215,8 @@ async def menu_page(page: ft.Page):
         spacing=20,
         expand=True,
     )
-    
+    page.scroll = ft.ScrollMode.HIDDEN
+
     # Main container with gradient background
     main_container = ft. Container(
         content=ft.Column(
@@ -241,6 +242,12 @@ async def menu_page(page: ft.Page):
             stops=[0.0, 0.25, 0.5, 0.75, 1.0],
         ),
         alignment=ft.alignment.center,
+        padding=ft.padding.only(
+            top=35,  # отступ от челки
+            bottom=20,  # отступ от кнопок навигации
+            left=10,
+            right=10
+        ),
     )
     
     return main_container

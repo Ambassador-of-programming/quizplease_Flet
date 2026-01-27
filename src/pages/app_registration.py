@@ -151,7 +151,7 @@ async def app_registration_page(page: ft.Page):
         bgcolor="#E60189",
         border_radius=8,
         padding=ft.padding.symmetric(vertical=14, horizontal=30),
-        alignment=ft.alignment.Alignment.CENTER,
+        alignment=ft.alignment.center,
         on_click=on_register_click,
         ink=True,
         width=250,
@@ -211,7 +211,7 @@ async def app_registration_page(page: ft.Page):
         controls=[
             # Username
             ft.Text(
-                "Имя пользователя*",
+                "Имя пользователя (login)*",
                 size=14,
                 weight="w500",
                 color="#1E1E1E",
@@ -262,7 +262,7 @@ async def app_registration_page(page: ft.Page):
             # Register button
             ft.Container(
                 content=register_button,
-                alignment=ft.alignment.Alignment.CENTER,
+                alignment=ft.alignment.center,
             ),
             ft.Divider(height=16, color="transparent"),
             
@@ -293,6 +293,7 @@ async def app_registration_page(page: ft.Page):
         expand=True,
         spacing=0,
     )
+    page.scroll = None
     
     # Main container with gradient background
     main_container = ft.Container(
@@ -300,8 +301,8 @@ async def app_registration_page(page: ft.Page):
         width=page.window.width,
         height=page.window.height,
         gradient=ft.LinearGradient(
-            begin=ft.alignment.Alignment.TOP_LEFT,
-            end=ft.alignment.Alignment.BOTTOM_RIGHT,
+            begin=ft.alignment.top_left,
+            end=ft.alignment.bottom_right,
             colors=[
                 "#E8D5F2",  # Light purple
                 "#F5D5E8",  # Light pink
@@ -309,7 +310,14 @@ async def app_registration_page(page: ft.Page):
             ],
             stops=[0.0, 0.5, 1.0],
         ),
-        alignment=ft.alignment.Alignment.CENTER,
+        alignment=ft.alignment.center,
+        padding=ft.padding.only(
+            top=35,  # отступ от челки
+            bottom=20,  # отступ от кнопок навигации
+            left=10,
+            right=10
+        ),
+
     )
     
     return main_container

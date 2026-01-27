@@ -7,7 +7,7 @@ from pages.rating import rating_page
 from pages.registration import registration_page
 from pages.app_registration import app_registration_page
 
-class Router:
+class routers:
     def __init__(self, page: ft.Page):
             self.page = page
             self.routes = {

@@ -76,7 +76,7 @@ async def login_page(page: ft.Page):
     
     email_field = ft.TextField(
         label="",
-        hint_text="Value",
+        hint_text="Введите логин",
         border_color="#D9D9D9",
         border_radius=8,
         border_width=1,
@@ -105,7 +105,7 @@ async def login_page(page: ft.Page):
     
     password_field = ft.TextField(
         label="",
-        hint_text="Value",
+        hint_text="Введите пароль",
         border_color="#D9D9D9",
         border_radius=8,
         border_width=1,
@@ -144,7 +144,7 @@ async def login_page(page: ft.Page):
         bgcolor="#2C2C2C",
         border_radius=8,
         padding=ft.padding.symmetric(vertical=12, horizontal=12),
-        alignment=ft.alignment.Alignment.CENTER,
+        alignment=ft.alignment.center,
         on_click=on_login_click,
         ink=True,
     )
@@ -168,10 +168,10 @@ async def login_page(page: ft.Page):
                         controls=[
 
                             ft.Image(
-                                src="src/photo/login.png",
+                                src="images/login.png",
                                 width=190,
                                 height=127,
-                                fit='CONTAIN',
+                                fit=ft.ImageFit.CONTAIN,
                             ),
                         ],
                         spacing=5,
@@ -223,7 +223,6 @@ async def login_page(page: ft.Page):
                 login_button,
                 forgot_password_link,
                 app_registration_link,
-                # registration_link,
             ],
             spacing=24,
             tight=True,
@@ -261,6 +260,7 @@ async def login_page(page: ft.Page):
     )
     
     page.overlay.extend([error_snackbar, success_snackbar, info_snackbar])
+    page.scroll = None
     
     # Main container with gradient background
     main_container = ft.Container(
@@ -276,8 +276,8 @@ async def login_page(page: ft.Page):
         width=page.window.width,
         height=page.window.height,
         gradient=ft.LinearGradient(
-            begin=ft.alignment.Alignment.TOP_LEFT,
-            end=ft.alignment.Alignment.BOTTOM_RIGHT,
+            begin=ft.alignment.top_left,
+            end=ft.alignment.bottom_right,
             colors=[
                 "#5B4FFF",  # Blue-purple
                 "#8B5FFF",  # Purple
@@ -287,7 +287,7 @@ async def login_page(page: ft.Page):
             ],
             stops=[0.0, 0.25, 0.5, 0.75, 1.0],
         ),
-        alignment=ft.alignment.Alignment.CENTER,
+        alignment=ft.alignment.center,
     )
     
     return main_container

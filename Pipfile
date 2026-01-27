@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 aiofiles = "*"
-flet = "==0.80.0"
+flet = "==0.28.3"
 
 [dev-packages]
 
